@@ -74,12 +74,17 @@ export default function LoginPage() {
 
       if (result.success) {
         // Use the existing login function to set user state
-        await login(email, password)
-        toast({
-          title: "Login successful",
-          description: "Welcome to the Church Admin Panel",
-        })
-        router.push("/dashboard")
+        const loginSuccess = await login(email, password)
+        if (loginSuccess) {
+          toast({
+            title: "Login successful",
+            description: "Welcome to the Church Admin Panel",
+          })
+          // Small delay to ensure state is updated
+          setTimeout(() => {
+            router.push("/dashboard")
+          }, 100)
+        }
       } else {
         toast({
           title: "Verification failed",
@@ -109,7 +114,7 @@ export default function LoginPage() {
           <CardDescription>
             Admin Panel Login
             <br />
-            <span className="text-xs text-muted-foreground">Demo: admin@holycross.org / admin123</span>
+            <span className="text-xs text-muted-foreground">Demo: mohanish7777777@gmail.com / admin123</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
