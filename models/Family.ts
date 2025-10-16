@@ -7,7 +7,6 @@ export interface IFamily extends Document {
   address: string
   vicarName: string
   phone: string
-  email?: string
   pincode: string
   memberCount: number
   photo?: string // Base64 encoded image or file path for head of family
@@ -46,12 +45,6 @@ const FamilySchema = new Schema<IFamily>(
     phone: {
       type: String,
       trim: true,
-    },
-    email: {
-      type: String,
-      trim: true,
-      lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
     pincode: {
       type: String,

@@ -30,8 +30,13 @@ export interface IFamilyMember extends Document {
   yearlyStatus: IYearlyStatus
   education?: string
   occupation?: string
-  remarks_en?: string
-  remarks_ml?: string
+  fatherName?: string
+  motherName?: string
+  age?: number
+  phoneNumber?: string
+  emailId?: string
+  baptismName?: string
+  maritalStatus?: "Single" | "Married" | "Widowed" | "Divorced"
   photo?: string // Base64 encoded image or file path
   createdAt: Date
   updatedAt: Date
@@ -90,13 +95,32 @@ const FamilyMemberSchema = new Schema<IFamilyMember>(
       type: String,
       trim: true,
     },
-    remarks_en: {
+    fatherName: {
       type: String,
       trim: true,
     },
-    remarks_ml: {
+    motherName: {
       type: String,
       trim: true,
+    },
+    age: {
+      type: Number,
+    },
+    phoneNumber: {
+      type: String,
+      trim: true,
+    },
+    emailId: {
+      type: String,
+      trim: true,
+    },
+    baptismName: {
+      type: String,
+      trim: true,
+    },
+    maritalStatus: {
+      type: String,
+      enum: ["Single", "Married", "Widowed", "Divorced"],
     },
     photo: {
       type: String, // Base64 encoded image

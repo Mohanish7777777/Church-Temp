@@ -11,13 +11,17 @@ function getTransporter() {
       return null
     }
 
+    const smtpPort = Number.parseInt(process.env.SMTP_PORT)
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: Number.parseInt(process.env.SMTP_PORT),
-      secure: process.env.SMTP_PORT === "465", // true for 465, false for other ports
+      port: smtpPort,
+      secure: smtpPort === 465, // true for 465 (SSL), false for 587 (TLS)
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false, // For self-signed certificates
       },
     })
   }
@@ -33,6 +37,17 @@ interface EmailOptions {
 
 export async function sendEmail({ to, subject, html, text }: EmailOptions): Promise<boolean> {
   try {
+    console.log("=== Email Send Attempt ===")
+    console.log("To:", to)
+    console.log("Subject:", subject)
+    console.log("SMTP Config:", {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+      from: process.env.SMTP_FROM_NAME,
+    })
+    
     const emailTransporter = getTransporter()
     
     if (!emailTransporter) {
@@ -49,9 +64,13 @@ export async function sendEmail({ to, subject, html, text }: EmailOptions): Prom
     })
 
     console.log("Email sent successfully:", info.messageId)
+    console.log("=== Email Send Complete ===")
     return true
-  } catch (error) {
-    console.error("Error sending email:", error)
+  } catch (error: any) {
+    console.error("=== Email Send Error ===")
+    console.error("Error message:", error.message)
+    console.error("Error code:", error.code)
+    console.error("Full error:", error)
     return false
   }
 }

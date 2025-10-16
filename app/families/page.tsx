@@ -59,9 +59,8 @@ export default function FamiliesPage() {
     unitId: "",
     address: "",
     phone: "",
-    email: "",
     pincode: "",
-    vicarName: "",
+    // vicarName: "",
     photo: "",
     groupPhoto: "",
   })
@@ -76,18 +75,55 @@ export default function FamiliesPage() {
     marriageDate: "",
     education: "",
     occupation: "",
-    remarks_en: "",
-    remarks_ml: "",
+    fatherName: "",
+    motherName: "",
+    age: "",
+    phoneNumber: "",
+    emailId: "",
+    baptismName: "",
+    maritalStatus: "",
     photo: "",
   })
+  
   const { toast } = useToast()
   const router = useRouter()
 
+  // Define fetchFamilyMembers using useCallback
+  const fetchFamilyMembers = useCallback(async (familyId: string) => {
+    if (!familyId) return;
+    
+    try {
+      const response = await fetch(`/api/families/${familyId}/members`)
+      const result = await response.json()
+      if (result.success) {
+        setFamilyMembers(result.data)
+      }
+    } catch (error) {
+      console.error("Error fetching family members:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch family members",
+        variant: "destructive",
+      })
+    }
+  }, [toast])
+
+  // Add the useEffect that uses fetchFamilyMembers
+  useEffect(() => {
+    if (selectedFamily?._id) {
+      fetchFamilyMembers(selectedFamily._id)
+    } else {
+      setFamilyMembers([])
+    }
+  }, [selectedFamily, fetchFamilyMembers])
+
+  // Initial data loading
   useEffect(() => {
     fetchUnits()
     fetchFamilies()
   }, [])
 
+  // Search and filter effect
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchFamilies()
@@ -136,18 +172,6 @@ export default function FamiliesPage() {
     }
   }
 
-  const fetchFamilyMembers = async (familyId: string) => {
-    try {
-      const response = await fetch(`/api/families/${familyId}/members`)
-      const result = await response.json()
-      if (result.success) {
-        setFamilyMembers(result.data)
-      }
-    } catch (error) {
-      console.error("Failed to fetch family members:", error)
-    }
-  }
-
   const clearMemberForm = useCallback(() => {
     setNewMember({
       name: "",
@@ -160,8 +184,13 @@ export default function FamiliesPage() {
       marriageDate: "",
       education: "",
       occupation: "",
-      remarks_en: "",
-      remarks_ml: "",
+      fatherName: "",
+      motherName: "",
+      age: "",
+      phoneNumber: "",
+      emailId: "",
+      baptismName: "",
+      maritalStatus: "",
       photo: "",
     })
   }, [])
@@ -173,9 +202,8 @@ export default function FamiliesPage() {
       unitId: "",
       address: "",
       phone: "",
-      email: "",
       pincode: "",
-      vicarName: "",
+      // vicarName: "",
       photo: "",
       groupPhoto: "",
     })
@@ -239,9 +267,8 @@ export default function FamiliesPage() {
       unitId: family.unitId._id,
       address: family.address,
       phone: family.phone,
-      email: family.email || "",
       pincode: family.pincode,
-      vicarName: family.vicarName,
+      // vicarName: family.vicarName,
       photo: family.photo || "",
       groupPhoto: family.groupPhoto || "",
     })
@@ -333,7 +360,6 @@ export default function FamiliesPage() {
 
   const handleViewFamily = (family: any) => {
     setSelectedFamily(family)
-    fetchFamilyMembers(family._id)
   }
 
   const handleAddMember = async () => {
@@ -400,8 +426,13 @@ export default function FamiliesPage() {
       marriageDate: member.marriageDate ? new Date(member.marriageDate).toISOString().split("T")[0] : "",
       education: member.education || "",
       occupation: member.occupation || "",
-      remarks_en: member.remarks_en || "",
-      remarks_ml: member.remarks_ml || "",
+      fatherName: member.fatherName || "",
+      motherName: member.motherName || "",
+      age: member.age || "",
+      phoneNumber: member.phoneNumber || "",
+      emailId: member.emailId || "",
+      baptismName: member.baptismName || "",
+      maritalStatus: member.maritalStatus || "",
       photo: member.photo || "",
     })
   }
@@ -589,16 +620,6 @@ export default function FamiliesPage() {
                       placeholder="+91 98765 43210"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={newFamily.email}
-                      onChange={(e) => setNewFamily({ ...newFamily, email: e.target.value })}
-                      placeholder="family@example.com"
-                    />
-                  </div>
                   <div className="col-span-2">
                     <Label htmlFor="address">Address</Label>
                     <Textarea
@@ -618,7 +639,7 @@ export default function FamiliesPage() {
                       placeholder="600037"
                     />
                   </div>
-                  <div>
+                  {/* <div>
                     <Label htmlFor="vicarName">Vicar Name</Label>
                     <Input
                       id="vicarName"
@@ -626,7 +647,7 @@ export default function FamiliesPage() {
                       onChange={(e) => setNewFamily({ ...newFamily, vicarName: e.target.value })}
                       placeholder="Rev. Fr. Name"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <DialogFooter>
@@ -907,10 +928,10 @@ export default function FamiliesPage() {
                     <Label className="text-sm font-medium text-gray-600">PIN Code</Label>
                     <p>{selectedFamily?.pincode || "N/A"}</p>
                   </div>
-                  <div>
+                  {/* <div>
                     <Label className="text-sm font-medium text-gray-600">Vicar</Label>
                     <p>{selectedFamily?.vicarName || "N/A"}</p>
-                  </div>
+                  </div> */}
                 </div>
               </TabsContent>
             </Tabs>
@@ -939,129 +960,182 @@ export default function FamiliesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="member-name">Name*</Label>
-                <Input
-                  id="member-name"
-                  value={newMember.name}
-                  onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                  placeholder="Full name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-dob">Date of Birth</Label>
-                <Input
-                  id="member-dob"
-                  type="date"
-                  value={newMember.dob}
-                  onChange={(e) => setNewMember({ ...newMember, dob: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-gender">Gender*</Label>
-                <Select
-                  value={newMember.gender}
-                  onValueChange={(value) => setNewMember({ ...newMember, gender: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="member-relationship">Relationship*</Label>
-                <Select
-                  value={newMember.relationship}
-                  onValueChange={(value) => setNewMember({ ...newMember, relationship: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select relationship" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {relationshipOptions.map((rel) => (
-                      <SelectItem key={rel} value={rel}>
-                        {rel}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="member-baptism">Baptism Date</Label>
-                <Input
-                  id="member-baptism"
-                  type="date"
-                  value={newMember.baptismDate}
-                  onChange={(e) => setNewMember({ ...newMember, baptismDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-communion">First Communion Date</Label>
-                <Input
-                  id="member-communion"
-                  type="date"
-                  value={newMember.communionDate}
-                  onChange={(e) => setNewMember({ ...newMember, communionDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-confirmation">Confirmation Date</Label>
-                <Input
-                  id="member-confirmation"
-                  type="date"
-                  value={newMember.confirmationDate}
-                  onChange={(e) => setNewMember({ ...newMember, confirmationDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-marriage">Marriage Date</Label>
-                <Input
-                  id="member-marriage"
-                  type="date"
-                  value={newMember.marriageDate}
-                  onChange={(e) => setNewMember({ ...newMember, marriageDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-education">Education</Label>
-                <Input
-                  id="member-education"
-                  value={newMember.education}
-                  onChange={(e) => setNewMember({ ...newMember, education: e.target.value })}
-                  placeholder="Educational qualification"
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-occupation">Occupation</Label>
-                <Input
-                  id="member-occupation"
-                  value={newMember.occupation}
-                  onChange={(e) => setNewMember({ ...newMember, occupation: e.target.value })}
-                  placeholder="Job/profession"
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-remarks-en">Remarks (English)</Label>
-                <Textarea
-                  id="member-remarks-en"
-                  value={newMember.remarks_en}
-                  onChange={(e) => setNewMember({ ...newMember, remarks_en: e.target.value })}
-                  placeholder="Additional notes in English"
-                  rows={2}
-                />
-              </div>
-              <div>
-                <Label htmlFor="member-remarks-ml">Remarks (Malayalam)</Label>
-                <Textarea
-                  id="member-remarks-ml"
-                  value={newMember.remarks_ml}
-                  onChange={(e) => setNewMember({ ...newMember, remarks_ml: e.target.value })}
-                  placeholder="Additional notes in Malayalam"
-                  rows={2}
-                />
-              </div>
+                  <Input
+                    id="member-name"
+                    value={newMember.name}
+                    onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                    placeholder="Full name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-dob">Date of Birth</Label>
+                  <Input
+                    id="member-dob"
+                    type="date"
+                    value={newMember.dob}
+                    onChange={(e) => setNewMember({ ...newMember, dob: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-gender">Gender*</Label>
+                  <Select
+                    value={newMember.gender}
+                    onValueChange={(value) => setNewMember({ ...newMember, gender: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="member-relationship">Relationship*</Label>
+                  <Select
+                    value={newMember.relationship}
+                    onValueChange={(value) => setNewMember({ ...newMember, relationship: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select relationship" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {relationshipOptions.map((rel) => (
+                        <SelectItem key={rel} value={rel}>
+                          {rel}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="member-baptism">Baptism Date</Label>
+                  <Input
+                    id="member-baptism"
+                    type="date"
+                    value={newMember.baptismDate}
+                    onChange={(e) => setNewMember({ ...newMember, baptismDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-communion">First Communion Date</Label>
+                  <Input
+                    id="member-communion"
+                    type="date"
+                    value={newMember.communionDate}
+                    onChange={(e) => setNewMember({ ...newMember, communionDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-confirmation">Confirmation Date</Label>
+                  <Input
+                    id="member-confirmation"
+                    type="date"
+                    value={newMember.confirmationDate}
+                    onChange={(e) => setNewMember({ ...newMember, confirmationDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-marriage">Marriage Date</Label>
+                  <Input
+                    id="member-marriage"
+                    type="date"
+                    value={newMember.marriageDate}
+                    onChange={(e) => setNewMember({ ...newMember, marriageDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-education">Education</Label>
+                  <Input
+                    id="member-education"
+                    value={newMember.education}
+                    onChange={(e) => setNewMember({ ...newMember, education: e.target.value })}
+                    placeholder="Educational qualification"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-occupation">Occupation</Label>
+                  <Input
+                    id="member-occupation"
+                    value={newMember.occupation}
+                    onChange={(e) => setNewMember({ ...newMember, occupation: e.target.value })}
+                    placeholder="Job/profession"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-father-name">Father Name</Label>
+                  <Input
+                    id="member-father-name"
+                    value={newMember.fatherName}
+                    onChange={(e) => setNewMember({ ...newMember, fatherName: e.target.value })}
+                    placeholder="Father's name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-mother-name">Mother Name</Label>
+                  <Input
+                    id="member-mother-name"
+                    value={newMember.motherName}
+                    onChange={(e) => setNewMember({ ...newMember, motherName: e.target.value })}
+                    placeholder="Mother's name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-age">Age</Label>
+                  <Input
+                    id="member-age"
+                    type="number"
+                    value={newMember.age}
+                    onChange={(e) => setNewMember({ ...newMember, age: e.target.value })}
+                    placeholder="Age"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-phone">Phone Number</Label>
+                  <Input
+                    id="member-phone"
+                    value={newMember.phoneNumber}
+                    onChange={(e) => setNewMember({ ...newMember, phoneNumber: e.target.value })}
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-email">Email ID</Label>
+                  <Input
+                    id="member-email"
+                    type="email"
+                    value={newMember.emailId}
+                    onChange={(e) => setNewMember({ ...newMember, emailId: e.target.value })}
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-baptism-name">Baptism Name</Label>
+                  <Input
+                    id="member-baptism-name"
+                    value={newMember.baptismName}
+                    onChange={(e) => setNewMember({ ...newMember, baptismName: e.target.value })}
+                    placeholder="Baptism name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="member-marital-status">Marital Status</Label>
+                  <Select
+                    value={newMember.maritalStatus}
+                    onValueChange={(value) => setNewMember({ ...newMember, maritalStatus: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select marital status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Single">Single</SelectItem>
+                      <SelectItem value="Married">Married</SelectItem>
+                      <SelectItem value="Widowed">Widowed</SelectItem>
+                      <SelectItem value="Divorced">Divorced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -1099,129 +1173,182 @@ export default function FamiliesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-member-name">Name*</Label>
-                <Input
-                  id="edit-member-name"
-                  value={newMember.name}
-                  onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                  placeholder="Full name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-dob">Date of Birth</Label>
-                <Input
-                  id="edit-member-dob"
-                  type="date"
-                  value={newMember.dob}
-                  onChange={(e) => setNewMember({ ...newMember, dob: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-gender">Gender*</Label>
-                <Select
-                  value={newMember.gender}
-                  onValueChange={(value) => setNewMember({ ...newMember, gender: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="edit-member-relationship">Relationship*</Label>
-                <Select
-                  value={newMember.relationship}
-                  onValueChange={(value) => setNewMember({ ...newMember, relationship: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select relationship" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {relationshipOptions.map((rel) => (
-                      <SelectItem key={rel} value={rel}>
-                        {rel}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="edit-member-baptism">Baptism Date</Label>
-                <Input
-                  id="edit-member-baptism"
-                  type="date"
-                  value={newMember.baptismDate}
-                  onChange={(e) => setNewMember({ ...newMember, baptismDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-communion">First Communion Date</Label>
-                <Input
-                  id="edit-member-communion"
-                  type="date"
-                  value={newMember.communionDate}
-                  onChange={(e) => setNewMember({ ...newMember, communionDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-confirmation">Confirmation Date</Label>
-                <Input
-                  id="edit-member-confirmation"
-                  type="date"
-                  value={newMember.confirmationDate}
-                  onChange={(e) => setNewMember({ ...newMember, confirmationDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-marriage">Marriage Date</Label>
-                <Input
-                  id="edit-member-marriage"
-                  type="date"
-                  value={newMember.marriageDate}
-                  onChange={(e) => setNewMember({ ...newMember, marriageDate: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-education">Education</Label>
-                <Input
-                  id="edit-member-education"
-                  value={newMember.education}
-                  onChange={(e) => setNewMember({ ...newMember, education: e.target.value })}
-                  placeholder="Educational qualification"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-occupation">Occupation</Label>
-                <Input
-                  id="edit-member-occupation"
-                  value={newMember.occupation}
-                  onChange={(e) => setNewMember({ ...newMember, occupation: e.target.value })}
-                  placeholder="Job/profession"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-remarks-en">Remarks (English)</Label>
-                <Textarea
-                  id="edit-member-remarks-en"
-                  value={newMember.remarks_en}
-                  onChange={(e) => setNewMember({ ...newMember, remarks_en: e.target.value })}
-                  placeholder="Additional notes in English"
-                  rows={2}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-member-remarks-ml">Remarks (Malayalam)</Label>
-                <Textarea
-                  id="edit-member-remarks-ml"
-                  value={newMember.remarks_ml}
-                  onChange={(e) => setNewMember({ ...newMember, remarks_ml: e.target.value })}
-                  placeholder="Additional notes in Malayalam"
-                  rows={2}
-                />
-              </div>
+                  <Input
+                    id="edit-member-name"
+                    value={newMember.name}
+                    onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                    placeholder="Full name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-dob">Date of Birth</Label>
+                  <Input
+                    id="edit-member-dob"
+                    type="date"
+                    value={newMember.dob}
+                    onChange={(e) => setNewMember({ ...newMember, dob: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-gender">Gender*</Label>
+                  <Select
+                    value={newMember.gender}
+                    onValueChange={(value) => setNewMember({ ...newMember, gender: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-relationship">Relationship*</Label>
+                  <Select
+                    value={newMember.relationship}
+                    onValueChange={(value) => setNewMember({ ...newMember, relationship: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select relationship" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {relationshipOptions.map((rel) => (
+                        <SelectItem key={rel} value={rel}>
+                          {rel}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-baptism">Baptism Date</Label>
+                  <Input
+                    id="edit-member-baptism"
+                    type="date"
+                    value={newMember.baptismDate}
+                    onChange={(e) => setNewMember({ ...newMember, baptismDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-communion">First Communion Date</Label>
+                  <Input
+                    id="edit-member-communion"
+                    type="date"
+                    value={newMember.communionDate}
+                    onChange={(e) => setNewMember({ ...newMember, communionDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-confirmation">Confirmation Date</Label>
+                  <Input
+                    id="edit-member-confirmation"
+                    type="date"
+                    value={newMember.confirmationDate}
+                    onChange={(e) => setNewMember({ ...newMember, confirmationDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-marriage">Marriage Date</Label>
+                  <Input
+                    id="edit-member-marriage"
+                    type="date"
+                    value={newMember.marriageDate}
+                    onChange={(e) => setNewMember({ ...newMember, marriageDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-education">Education</Label>
+                  <Input
+                    id="edit-member-education"
+                    value={newMember.education}
+                    onChange={(e) => setNewMember({ ...newMember, education: e.target.value })}
+                    placeholder="Educational qualification"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-occupation">Occupation</Label>
+                  <Input
+                    id="edit-member-occupation"
+                    value={newMember.occupation}
+                    onChange={(e) => setNewMember({ ...newMember, occupation: e.target.value })}
+                    placeholder="Job/profession"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-father-name">Father Name</Label>
+                  <Input
+                    id="edit-member-father-name"
+                    value={newMember.fatherName}
+                    onChange={(e) => setNewMember({ ...newMember, fatherName: e.target.value })}
+                    placeholder="Father's name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-mother-name">Mother Name</Label>
+                  <Input
+                    id="edit-member-mother-name"
+                    value={newMember.motherName}
+                    onChange={(e) => setNewMember({ ...newMember, motherName: e.target.value })}
+                    placeholder="Mother's name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-age">Age</Label>
+                  <Input
+                    id="edit-member-age"
+                    type="number"
+                    value={newMember.age}
+                    onChange={(e) => setNewMember({ ...newMember, age: e.target.value })}
+                    placeholder="Age"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-phone">Phone Number</Label>
+                  <Input
+                    id="edit-member-phone"
+                    value={newMember.phoneNumber}
+                    onChange={(e) => setNewMember({ ...newMember, phoneNumber: e.target.value })}
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-email">Email ID</Label>
+                  <Input
+                    id="edit-member-email"
+                    type="email"
+                    value={newMember.emailId}
+                    onChange={(e) => setNewMember({ ...newMember, emailId: e.target.value })}
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-baptism-name">Baptism Name</Label>
+                  <Input
+                    id="edit-member-baptism-name"
+                    value={newMember.baptismName}
+                    onChange={(e) => setNewMember({ ...newMember, baptismName: e.target.value })}
+                    placeholder="Baptism name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-member-marital-status">Marital Status</Label>
+                  <Select
+                    value={newMember.maritalStatus}
+                    onValueChange={(value) => setNewMember({ ...newMember, maritalStatus: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select marital status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Single">Single</SelectItem>
+                      <SelectItem value="Married">Married</SelectItem>
+                      <SelectItem value="Widowed">Widowed</SelectItem>
+                      <SelectItem value="Divorced">Divorced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -1328,7 +1455,7 @@ export default function FamiliesPage() {
                     placeholder="600037"
                   />
                 </div>
-                <div>
+                {/* <div>
                   <Label htmlFor="edit-vicarName">Vicar Name</Label>
                   <Input
                     id="edit-vicarName"
@@ -1336,7 +1463,7 @@ export default function FamiliesPage() {
                     onChange={(e) => setNewFamily({ ...newFamily, vicarName: e.target.value })}
                     placeholder="Rev. Fr. Name"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
             <DialogFooter>

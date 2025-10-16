@@ -9,8 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Holy Cross Church - Admin Panel",
-  description: "Church Management System for Holy Cross Syro Malabar Catholic Forane Church",
-    generator: 'v0.app'
+  description: "Church Management System for Holy Cross Syro Malabar Catholic Forane Church"
 }
 
 export default function RootLayout({
